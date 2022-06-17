@@ -3,7 +3,9 @@ import jwt from "jsonwebtoken";
 import { UserSchema } from "../models/user.model.js";
 import bcrypt from 'bcrypt';
 import multer from "multer";
-impor
+import { organSchema } from "../models/organ.model.js";
+
+const Poll = mongoose.model('Organ', organSchema);
 
 const User = mongoose.model('User', UserSchema)
 // Create and Save a new Note
@@ -38,8 +40,9 @@ export const signup = async (req, res, next) => {
     User.find({ email }).exec().then(users => {
         if (users.length >= 1) {
             return res.status(409).send({
-                message: 'Email already taken'
+                message: 'Sorry, that email is already taken'
             })
+            // next(error);
         } else {
             bcrypt.hash(password, 10, (err, hashPassword) => {
                 if (err) {
@@ -53,7 +56,7 @@ export const signup = async (req, res, next) => {
                         gender,
                         email,
                         password: hashPassword,
-                        profileImg: url + '/public' + req.file.filename
+                        // profileImg: url + '/public' + req.file.filename
                     });
 
                     // Save User in the database
@@ -155,24 +158,34 @@ export const getUsers = (req, res) => {
 
 // Find a single note with a noteId
 export const getUser = (req, res) => {
-    User.findById(req.params.uid)
-        .then(user => {
-            if (!user) {
-                return res.status(404).send({
-                    message: "User not found with id " + req.params.uid
-                });
-            }
-            res.send(user);
-        }).catch(err => {
-            if (err.kind === 'ObjectId') {
-                return res.status(404).send({
-                    message: "User not found with id " + req.params.uid
-                });
-            }
-            return res.status(500).send({
-                message: "Error retrieving user with id " + req.params.uid
-            });
-        });
+    // User.findById(req.params.uid)
+    //     .then(user => {
+    //         if (!user) {
+    //             return res.status(404).send({
+    //                 message: "User not found with id " + req.params.uid
+    //             });
+    //         }
+    //         res.send(user);
+    //     }).catch(err => {
+    //         if (err.kind === 'ObjectId') {
+    //             return res.status(404).send({
+    //                 message: "User not found with id " + req.params.uid
+    //             });
+    //         }
+    //         return res.status(500).send({
+    //             message: "Error retrieving user with id " + req.params.uid
+    //         });
+    //     });
+    try {
+        const { _id } = req.decoded
+        const user = await User.findById(_id)
+            .populate('organs')
+        res.status(200).send(user.organs);
+        console.log("Found the organisations");
+    } catch (error) {
+        error.status = 400;
+        next(error)
+    }
 };
 
 // Update a note identified by the noteId in the request

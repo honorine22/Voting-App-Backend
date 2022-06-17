@@ -5,7 +5,6 @@ const usersRoutes = (app) => {
     app.route('/users')
         .get(upload.single('profileImg'), getUsers);
     app.route('/users/:uid')
-        .get(getUser)
         .put(verifyToken, loginRequired, updateUser)
         .delete(verifyToken, loginRequired, deleteUser);
     app.route('/users/email/:email')
@@ -14,6 +13,8 @@ const usersRoutes = (app) => {
         .post(signin);
     app.route('/register')
         .post(signup);
+    app.route('users')
+        .get(getUser)
 
 }
 export default usersRoutes;

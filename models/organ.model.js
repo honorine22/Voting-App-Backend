@@ -9,10 +9,10 @@ const candidateSchema = new mongoose.Schema({
         required: true,
         type: String
     },
-    canImg: {
-        type: String,
-        required: [true, 'Candidate Image is required']
-    },
+    // canImg: {
+    //     type: String,
+    //     required: [true, 'Candidate Image is required']
+    // },
     votes: {
         type: Number,
         default: 0
@@ -20,7 +20,7 @@ const candidateSchema = new mongoose.Schema({
 })
 
 
-export const organSchema = new mongoose.Schema({
+export const OrganSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
@@ -29,10 +29,10 @@ export const organSchema = new mongoose.Schema({
         required: true,
         type: String
     },
-    orgImg: {
-        type: String,
-        required: [true, 'Organisation Image is required']
-    },
+    // orgImg: {
+    //     type: String,
+    //     required: [true, 'Organisation Image is required']
+    // },
     candidates: [candidateSchema],
     voted: [{
         type: mongoose.Schema.Types.ObjectId,

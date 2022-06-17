@@ -28,7 +28,7 @@ export const UserSchema = new mongoose.Schema({
     },
     profileImg: {
         type: String,
-        required: [true, 'Profile Image is required']
+        required: [false, 'Profile Image is required']
     },
     // user can register as a candidate in different organisations (one or more)
     organs: [{
