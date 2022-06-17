@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 export const UserSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -6,6 +7,8 @@ export const UserSchema = new mongoose.Schema({
     },
     gender: {
         type: String,
+        enum: ['female', 'male', 'none'],
+        default: 'none',
         required: [true, 'gender not provided']
     },
     email: {
@@ -22,5 +25,14 @@ export const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
-    }
+    },
+    profileImg: {
+        type: String,
+        required: [true, 'Profile Image is required']
+    },
+    // user can register as a candidate in different organisations (one or more)
+    organs: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Organ'
+    }]
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } });

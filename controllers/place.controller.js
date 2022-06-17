@@ -22,7 +22,9 @@ export const getPlace = (req, res) => {
     Place.findById(req.params.pid)
         .then(place => {
             if (!place) {
-                throw new HttpError("Could not find a place for the provided id.", 404);
+                res.status(404).send({
+                    message: "Could not find a place for the provided id."
+                })
             }
             res.send(place);
         })
@@ -49,21 +51,24 @@ export const getPlaceById = (req, res) => {
 }
 
 export const getPlaceByUser = (req, res, next) => {
-    const userId = User.findById(req.params.uid);
-    const place = Place.find(p => {
-        return p.creator === userId;
-    });
-    if (!place) {
-        return next(
-            new HttpError("Could not find a place for the provided id.", 404)
-        );
-    }
-    res.send(place);
+    const { email } = req.body;
+    let userEmail = "";
+    User.findOne({ email })
+        .then(() => {
+            userEmail = email;
+        });
+    Place.find()
+        .then(places => {
+            const placesArr = places.filter(function (place) {
+                return place.creator == userEmail;
+            });
+            res.send(placesArr)
+        });
 };
 
 export const newPlace = (req, res) => {
     const { title, description, coordinates, address, creator } = req.body;
-    if (!res.body.name) {
+    if (!title) {
         return res.status(400).send({
             message: "Name can't be empty"
         })

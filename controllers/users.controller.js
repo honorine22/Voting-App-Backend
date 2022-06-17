@@ -1,69 +1,145 @@
 import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
 import { UserSchema } from "../models/user.model.js";
 import bcrypt from 'bcrypt';
-import jsonwebtoken from "jsonwebtoken";
+import multer from "multer";
+impor
+
 const User = mongoose.model('User', UserSchema)
 // Create and Save a new Note
-export const signup = (req, res) => {
 
-    const { name, gender, email, password } = req.body;
-    // Validate request
-    if (!name) {
-        return res.status(400).send({
-            message: "User name can not be empty"
-        });
+const DIR = '../public/';
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, DIR);
+    },
+    filename: (req, file, cb) => {
+        const filename = file.originalname.toLowerCase().split(' ').join('-');
+        cb(null, uui)
     }
-    // Create a User
-    const user = new User({
-        name,
-        gender,
-        email,
-        password
-    });
+});
 
-    // Save User in the database
-    user.save()
-        .then(data => {
-            res.send(data);
-        }).catch(err => {
-            res.status(500).send({
-                message: err.message || "Some error occurred while creating the User."
-            });
-        });
+let upload = multer({
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg") {
+            cb(null, true);
+        } else {
+            cb(null, false);
+            return cb(new Error('Only .png, .jpg and .jpeg format allowed!'))
+        }
+    }
+})
+
+export const signup = async (req, res, next) => {
+    const { name, gender, email, password } = req.body;
+    const url = req.protocol + '://' + req.get('host');
+    User.find({ email }).exec().then(users => {
+        if (users.length >= 1) {
+            return res.status(409).send({
+                message: 'Email already taken'
+            })
+        } else {
+            bcrypt.hash(password, 10, (err, hashPassword) => {
+                if (err) {
+                    return res.status(500).send({
+                        message: err
+                    })
+                } else {
+                    // Create a User
+                    const user = new User({
+                        name,
+                        gender,
+                        email,
+                        password: hashPassword,
+                        profileImg: url + '/public' + req.file.filename
+                    });
+
+                    // Save User in the database
+                    user.save()
+                        .then(data => {
+                            res.status(201).send(data);
+                        }).catch(err => {
+                            res.status(500).send({
+                                message: err.message || "Some error occurred while creating the User."
+                            });
+
+                        });
+                }
+            })
+        }
+    })
 };
 
-export const signin = (req, res) => {
-    User.findOne({ email: req.body.email })
-        .then(user => {
-            if (!user) {
+export const findByEmail = (req, res) => {
+    User.findOne({ email: req.params.email })
+        .then(user_email => {
+            if (!user_email)
                 return res.status(404).send({
-                    message: "User Not Found"
+                    message: "User with email" + req.params.email + " Not found"
                 })
-            }
-
-            const passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
-            if (!passwordIsValid) {
-                return res.status(401)
-                    .send({ accessToken: null, message: "Invalid Password" })
-            }
-            const token = jsonwebtoken.sign({
-                id: user.id
-            }, process.env.API_SECRET, {
-                expiresIn: 86400
+            res.send(user_email)
+        })
+        .catch(err => {
+            return res.status(500).send({
+                message: "Couldn't fetch user"
             })
-            res.status(200).send({
-                user: {
-                    id: user._id,
-                    email: user.email,
-                    name: user.name
-                },
-                message: "Login Successfull",
-                accessToken: token
-            });
         })
 }
 
+export const signin = (req, res) => {
+    const { email, password } = req.body;
+    User.find({ email })
+        .exec()
+        .then(users => {
+            if (users.length < 1) {
+                return res.status(404).send({
+                    message: 'User not found'
+                })
+            }
+            bcrypt.compare(password, users[0].password, (err, isEqual) => {
+                console.log(password);
+                console.log(users[0].password);
+                if (err) {
+                    return res.status(401).send({
+                        message: 'Unauthorized'
+                    })
+                }
+                if (isEqual) {
+                    const token = jwt.sign({
+                        email: users[0].email,
+                        uid: users[0]._id
+                    }, process.env.API_SECRET, {
+                        expiresIn: '1h'
+                    }, (err, token) => {
+                        console.log(token);
+                    });
+                    return res.status(200).send({
+                        message: 'Login Successfull',
+                        token: token
+                    })
+                }
+                res.status(401).send({
+                    message: 'Unauthorized'
+                })
+            })
+        })
+        .catch(err => {
+            res.status(500).send({
+                message: err
+            })
+        })
+}
 
+export const loginRequired = (req, res, next) => {
+    if (req.user)
+        next()
+    else
+        return res.status(401).send({
+            message: 'Unauthorized user!!'
+        })
+}
 
 // Retrieve and return all notes from the database.
 export const getUsers = (req, res) => {

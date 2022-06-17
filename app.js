@@ -9,6 +9,7 @@ dotenv.config();
 import SwaggerUI from 'swagger-ui-express';
 import placeRoutes from "./routes/place.route.js";
 import usersRoutes from "./routes/user.route.js";
+import jsonwebtoken from "jsonwebtoken";
 const port = process.env.port || 5000;
 const url = process.env.url;
 const app = express();
@@ -40,6 +41,20 @@ mongoose.connect(url, { useUnifiedTopology: true, useNewUrlParser: true })
 app.get('/', (req, res) => {
     res.json({ message: 'Welcome to learning on board!' })
 })
+
+// app.use(function (req, res, next) {
+//     if (req.headers && req.headers.authorization && req.headers.authorization.split(' ')[0] === 'JWT') {
+//         jsonwebtoken.verify(req.headers.authorization.split(' ')[1], process.env.API_SECRET, function (err, decode) {
+//             if (err) req.user = undefined;
+//             req.user = decode;
+//             next();
+//         });
+//     } else {
+//         req.user = undefined;
+//         next();
+//     }
+// })
+
 placeRoutes(app);
 usersRoutes(app);
 
