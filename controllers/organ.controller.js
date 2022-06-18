@@ -8,8 +8,25 @@ export const getAllOrgans = async (req, res, next) => {
     try {
         const organs = await Organ.find()
             .populate('user', ['email', '_id'])
-        res.status(201).send(organs)
-        console.log("Organs fetched.");
+        const arrayOrgans = organs.map(({ orgname }) => ({
+            orgname
+        }))
+        console.log("array organs" + arrayOrgans);
+        const uniqueNames = [];
+
+        const uniqueOrgans = arrayOrgans.filter(element => {
+            const isDuplicate = uniqueNames.includes(element.orgname);
+
+            if (!isDuplicate) {
+                uniqueNames.push(element.orgname);
+                return true;
+            }
+            return false;
+        })
+        // Returned only organisation names
+        res.status(201).send(
+            uniqueOrgans
+        )
     } catch (error) {
         if (error.code === 11000) {
             error.message = 'Sorry, that email is already taken.'
@@ -134,6 +151,8 @@ export const checkVoteNum = async (req, res, next) => {
         next(error)
     }
 }
+
+
 
 export const allOrgans = (req, res) => {
     Organ.find()
