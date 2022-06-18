@@ -14,8 +14,13 @@ export const getAllOrgans = async (req, res, next) => {
         console.log("array organs" + arrayOrgans);
         const uniqueNames = [];
 
+        // This method gets called with each element in the array.
         const uniqueOrgans = arrayOrgans.filter(element => {
             const isDuplicate = uniqueNames.includes(element.orgname);
+            // For the first time orgname get into uniqueNames because we initially
+            // have empty array which doesn't contain the same name. when another
+            // orgname of the second item comes, it check if names are equal or not
+            // and insert the item if it is different
 
             if (!isDuplicate) {
                 uniqueNames.push(element.orgname);
