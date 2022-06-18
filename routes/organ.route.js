@@ -1,17 +1,16 @@
-import { loginRequired } from '../controllers/users.controller.js';
-import verifyToken from '../middlewares/verifyToken.js';
 import { getAllOrgans, getOrgansByUser, newOrgan, deleteOrgan, checkVoteNum } from '../controllers/organ.controller.js';
-const placeRoutes = (app) => {
+import auth from '../middlewares/auth.middleware.js';
+const organRoutes = (app) => {
     app.route('/organs')
         .get(getAllOrgans)
-        .post(verifyToken, loginRequired, newOrgan)
+        .post(auth, newOrgan)
     app.route('/vote/:_id')
-        .post(verifyToken, loginRequired, checkVoteNum)
+        .post(auth, checkVoteNum)
     // user || user organ:_id
     app.route('/organs/:_id')
-        .delete(verifyToken, loginRequired, deleteOrgan)
+        .delete(auth, deleteOrgan)
     app.route('/user/organ')
-        .get(verifyToken, loginRequired, getOrgansByUser)
+        .get(auth, getOrgansByUser)
     // Get candidate by organisation
 }
-export default placeRoutes;
+export default organRoutes;

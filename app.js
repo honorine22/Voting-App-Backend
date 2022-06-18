@@ -10,6 +10,7 @@ import SwaggerUI from 'swagger-ui-express';
 import placeRoutes from "./routes/place.route.js";
 import usersRoutes from "./routes/user.route.js";
 import jsonwebtoken from "jsonwebtoken";
+import organRoutes from "./routes/organ.route.js";
 const port = process.env.port || 5000;
 const url = process.env.url;
 const app = express();
@@ -57,6 +58,7 @@ app.get('/', (req, res) => {
 
 placeRoutes(app);
 usersRoutes(app);
+organRoutes(app)
 
 app.listen(port, () => {
     console.log(`App running on port ${port}`);

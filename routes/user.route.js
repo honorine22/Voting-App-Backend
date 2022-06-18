@@ -1,12 +1,13 @@
-import { getUser, getUsers, updateUser, deleteUser, signup, signin, findByEmail, loginRequired } from '../controllers/users.controller.js';
-import verifyToken from '../middlewares/verifyToken.js';
-
+import { getUser, getUsers, updateUser, deleteUser, findByEmail } from '../controllers/users.controller.js';
+import { signin, signup } from '../controllers/auth.controller.js';
+import auth from '../middlewares/auth.middleware.js'
 const usersRoutes = (app) => {
+    // upload.single('profileImg')
     app.route('/users')
-        .get(upload.single('profileImg'), getUsers);
+        .get(getUsers);
     app.route('/users/:uid')
-        .put(verifyToken, loginRequired, updateUser)
-        .delete(verifyToken, loginRequired, deleteUser);
+        .put(auth, updateUser)
+        .delete(auth, deleteUser);
     app.route('/users/email/:email')
         .get(findByEmail)
     app.route('/login')

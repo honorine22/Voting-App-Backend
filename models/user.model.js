@@ -1,15 +1,8 @@
 import mongoose from "mongoose";
-
 export const UserSchema = new mongoose.Schema({
-    name: {
+    username: {
         type: String,
-        required: [true, 'name not provided']
-    },
-    gender: {
-        type: String,
-        enum: ['female', 'male', 'none'],
-        default: 'none',
-        required: [true, 'gender not provided']
+        required: [true, 'Username is required']
     },
     email: {
         type: String,
@@ -25,10 +18,6 @@ export const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
-    },
-    profileImg: {
-        type: String,
-        required: [false, 'Profile Image is required']
     },
     // user can register as a candidate in different organisations (one or more)
     organs: [{

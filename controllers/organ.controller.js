@@ -4,7 +4,7 @@ import { UserSchema } from '../models/user.model.js';
 const User = mongoose.model('User', UserSchema);
 const Organ = mongoose.model('Organ', OrganSchema);
 
-export const getAllOrgans = (req, res, next) => {
+export const getAllOrgans = async (req, res, next) => {
     try {
         const organs = await Organ.find()
             .populate('user', ['email', '_id'])
@@ -18,17 +18,18 @@ export const getAllOrgans = (req, res, next) => {
     };
 }
 
-export const newOrgan = (req, res) => {
+export const newOrgan = async (req, res, next) => {
     try {
-        console.log("Checking Auth..." + req.decoded);
-        const { _id } = req.decoded
-        const user = await User.findById(_id)
+        const userId = req.user._id;
+        console.log("Checking Auth..." + userId);
+        const user = await User.findById(userId)
         const { orgname, candidates } = req.body
         const organ = await Organ.create({
             user,
             orgname,
-            candidates: candidates.map(candidate => ({
-                candidate,
+            candidates: candidates.map(({ fullname, description }) => ({
+                fullname,
+                description,
                 votes: 0
             }))
         })
@@ -41,15 +42,10 @@ export const newOrgan = (req, res) => {
     }
 }
 
-
-
-// router.get(
-//     '/user',
-//     auth,
 export const getOrgansByUser = async (req, res, next) => {
+    const userId = req.user._id;
     try {
-        const { _id } = req.decoded
-        const user = await User.findById(_id)
+        const user = await User.findById(userId)
             .populate('organs');
         res.status(200).json(user.organs)
     } catch (err) {
@@ -79,13 +75,13 @@ export const getOrganByUser = async (req, res, next) => {
 }
 
 export const deleteOrgan = async (req, res, next) => {
+    const userId = req.user._id;
     try {
         const { _id } = req.params
-        const { _id: userID } = req.decoded
         const organ = await Organ.findById(_id);
 
         if (!organ) throw new Error("No organ found.");
-        if (organ.user.toString() !== userID) {
+        if (organ.user.toString() !== userId) {
             throw new Error('Unauthorized access.')
         }
         await organ.remove()
@@ -99,9 +95,9 @@ export const deleteOrgan = async (req, res, next) => {
 }
 
 export const checkVoteNum = async (req, res, next) => {
+    const userId = req.user._id;
     try {
         const { _id: organID } = req.params
-        const { _id: userID } = req.decoded
         const { answer } = req.body
 
         if (answer) {
@@ -122,9 +118,9 @@ export const checkVoteNum = async (req, res, next) => {
             })
 
             if (organ.voted.filter(user =>
-                user.toString() === userID).length <= 0) {
-                organ.voted.pushed(userID)
-                console.log(`Voted by userID ${userID}.`);
+                user.toString() === userId).length <= 0) {
+                organ.voted.pushed(userId)
+                console.log(`Voted by userID ${userId}.`);
                 organ.candidates = vote;
                 await organ.save()
                 res.status(201).send(organ)
