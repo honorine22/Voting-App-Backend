@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 const User = mongoose.model('User', UserSchema)
 
 export const signup = async (req, res) => {
+    const url = req.protocol + '://' + req.get('host');
     let user = await User.findOne({ email: req.body.email });
     if (user) {
         res.status(400).json({ success: false, message: "Sorry, that email is already taken" })
@@ -12,7 +13,10 @@ export const signup = async (req, res) => {
     else {
         const { username, email, password } = req.body;
         bcrypt.hash(password, 10, async (err, hashPassword) => {
-            const user = new User({ username, email, password: hashPassword });
+            const user = new User({
+                username, email, password: hashPassword,
+                profileImg: url + '/public/' + req.file.filename
+            });
             await user.save();
             res.status(200).json({ success: true, data: user });
         })

@@ -1,30 +1,6 @@
 import mongoose from "mongoose";
 import { UserSchema } from "../models/user.model.js";
-import multer from "multer";
 const User = mongoose.model('User', UserSchema)
-const DIR = '../public/';
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, DIR);
-    },
-    filename: (req, file, cb) => {
-        const filename = file.originalname.toLowerCase().split(' ').join('-');
-        cb(null, uui)
-    }
-});
-
-let upload = multer({
-    storage: storage,
-    fileFilter: (req, file, cb) => {
-        if (file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg") {
-            cb(null, true);
-        } else {
-            cb(null, false);
-            return cb(new Error('Only .png, .jpg and .jpeg format allowed!'))
-        }
-    }
-})
 
 export const findByEmail = (req, res) => {
     User.findOne({ email: req.params.email })
@@ -67,10 +43,13 @@ export const getUser = async (req, res) => {
 };
 
 export const updateUser = (req, res) => {
+    const url = req.protocol + '://' + req.get('host');
     User.findByIdAndUpdate(req.params.uid, {
         username: req.body.username,
         email: req.body.email,
-        password: req.body.password
+        password: req.body.password,
+        profileImg: url + '/public/' + req.file.filename
+
     }, { new: true })
         .then(user => {
             if (!user) {

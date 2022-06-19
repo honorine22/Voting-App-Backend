@@ -19,6 +19,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(morgan("dev"));
 app.use(cors());
+app.use('/public', express.static('public'));
 app.use((req, res, next) => {
     res.setHeader("Acess-Control-Allow-Origin", "*");
     res.setHeader("Acess-Control-Allow-Methods",
@@ -42,19 +43,6 @@ mongoose.connect(url, { useUnifiedTopology: true, useNewUrlParser: true })
 app.get('/', (req, res) => {
     res.json({ message: 'Welcome to learning on board!' })
 })
-
-// app.use(function (req, res, next) {
-//     if (req.headers && req.headers.authorization && req.headers.authorization.split(' ')[0] === 'JWT') {
-//         jsonwebtoken.verify(req.headers.authorization.split(' ')[1], process.env.API_SECRET, function (err, decode) {
-//             if (err) req.user = undefined;
-//             req.user = decode;
-//             next();
-//         });
-//     } else {
-//         req.user = undefined;
-//         next();
-//     }
-// })
 
 placeRoutes(app);
 usersRoutes(app);

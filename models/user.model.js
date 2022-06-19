@@ -19,6 +19,9 @@ export const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    profileImg: {
+        type: String
+    },
     // user can register as a candidate in different organisations (one or more)
     organs: [{
         type: mongoose.Schema.Types.ObjectId,
