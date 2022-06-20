@@ -1,7 +1,7 @@
 import { getUser, getUsers, updateUser, deleteUser, findByEmail } from '../controllers/users.controller.js';
 import { signin, signup } from '../controllers/auth.controller.js';
 import auth from '../middlewares/auth.middleware.js'
-import upload from '../middlewares/uploadImage.js';
+import upload from '../middlewares/image.middleware.js';
 
 const usersRoutes = (app) => {
     app.route('/users')

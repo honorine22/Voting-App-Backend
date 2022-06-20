@@ -1,6 +1,5 @@
 
 import multer from 'multer';
-import { v4 as uuid4 } from 'uuid';
 const DIR = './public/';
 
 const storage = multer.diskStorage({
@@ -8,8 +7,7 @@ const storage = multer.diskStorage({
         cb(null, DIR);
     },
     filename: (req, file, cb) => {
-        const filename = file.originalname.toLowerCase().split(' ').join('-');
-        cb(null, uuid4() + '-' + filename)
+        cb(null, file.fieldname + '-' + Date.now());
     }
 });
 

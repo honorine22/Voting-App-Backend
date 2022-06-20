@@ -1,18 +1,17 @@
 import mongoose from 'mongoose';
-import { OrganSchema } from '../models/organ.model.js';
-import { UserSchema } from '../models/user.model.js';
-const User = mongoose.model('User', UserSchema);
-const Organ = mongoose.model('Organ', OrganSchema);
+import { Organ } from '../models/organ.model.js';
+import { User } from '../models/user.model.js';
 
-export const getAllOrgans = async (req, res, next) => {
+
+export const getAllOrganNames = async (req, res, next) => {
     try {
         const organs = await Organ.find()
             .populate('user', ['email', '_id'])
-        const arrayOrgans = organs.map(({ orgname, organImg }) => ({
+        const arrayOrgans = organs.map(({ _id, orgname, organImg }) => ({
+            _id,
             orgname,
             organImg
         }))
-        console.log("array organs" + arrayOrgans);
         const uniqueNames = [];
 
         // This method gets called with each element in the array.
@@ -24,7 +23,7 @@ export const getAllOrgans = async (req, res, next) => {
             // and insert the item if it is different
 
             if (!isDuplicate) {
-                uniqueNames.push(element.orgname);
+                uniqueNames.push(element.orgname, element.organImg);
                 return true;
             }
             return false;
@@ -48,15 +47,14 @@ export const newOrgan = async (req, res, next) => {
         console.log("Checking Auth..." + userId);
         const user = await User.findById(userId)
         const { orgname, candidates } = req.body;
-
-        const organImg = url + '/public/' + req.file.filename;
         const organ = await Organ.create({
             user,
             orgname,
-            organImg,
+            organImg: url + '/public/' + req.file.filename,
             candidates: candidates.map(({ fullname, description }) => ({
                 fullname,
                 description,
+                canImg: url + '/public/' + req.file.filename,
                 votes: 0
             }))
         })
@@ -69,41 +67,39 @@ export const newOrgan = async (req, res, next) => {
     }
 }
 
-// export const updateUser = (req, res) => {
-//     const url = req.protocol + '://' + req.get('host');
-//     User.findByIdAndUpdate(req.params.uid, {
-//         username: req.body.username,
-//         email: req.body.email,
-//         // name: req.body.name,
-//         password: req.body.password,
-//         profileImg: url + '/public/' + req.file.filename
+export const updateOrgan = (req, res) => {
+    const url = req.protocol + '://' + req.get('host');
+    Organ.findByIdAndUpdate(req.params._id, {
+        orgname: req.body.orgname,
+        candidates: req.body.candidates,
+        organImg: url + '/public/' + req.file.filename
+    }, { new: true })
+        .then(organ => {
+            if (!organ) {
+                return res.status(404).send({
+                    message: "Organ not found with id " + req.params._id
+                });
+            }
+            res.send(organ);
+        }).catch(err => {
+            if (err.kind === 'ObjectId') {
+                return res.status(404).send({
+                    message: "Organ not found with id " + req.params._id
+                });
+            }
+            return res.status(500).send({
+                message: "Error updating Organ with id " + req.params._id
+            });
+        });
+};
 
-//     }, { new: true })
-//         .then(user => {
-//             if (!user) {
-//                 return res.status(404).send({
-//                     message: "User not found with id " + req.params.uid
-//                 });
-//             }
-//             res.send(user);
-//         }).catch(err => {
-//             if (err.kind === 'ObjectId') {
-//                 return res.status(404).send({
-//                     message: "User not found with id " + req.params.uid
-//                 });
-//             }
-//             return res.status(500).send({
-//                 message: "Error updating user with id " + req.params.uid
-//             });
-//         });
-// };
-
-export const getOrgansByUser = async (req, res, next) => {
-    const userId = req.user._id;
+export const myPolls = async (req, res, next) => {
     try {
+        const userId = req.user._id;
         const user = await User.findById(userId)
             .populate('organs');
         res.status(200).json(user.organs)
+
     } catch (err) {
         return next({
             status: 400,

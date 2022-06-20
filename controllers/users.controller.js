@@ -1,6 +1,4 @@
-import mongoose from "mongoose";
-import { UserSchema } from "../models/user.model.js";
-const User = mongoose.model('User', UserSchema)
+import { User } from "../models/user.model.js";
 
 export const findByEmail = (req, res) => {
     User.findOne({ email: req.params.email })
@@ -47,7 +45,6 @@ export const updateUser = (req, res) => {
     User.findByIdAndUpdate(req.params.uid, {
         username: req.body.username,
         email: req.body.email,
-        // name: req.body.name,
         password: req.body.password,
         profileImg: url + '/public/' + req.file.filename
 

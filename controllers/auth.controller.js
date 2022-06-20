@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
-import { UserSchema } from "../models/user.model.js";
+import { User } from "../models/user.model.js";
+import { Image } from "../models/Image.model.js";
 import bcrypt from 'bcrypt';
-const User = mongoose.model('User', UserSchema)
 
 export const signup = async (req, res) => {
     const url = req.protocol + '://' + req.get('host');
@@ -13,10 +13,14 @@ export const signup = async (req, res) => {
     else {
         const { username, email, password } = req.body;
         bcrypt.hash(password, 10, async (err, hashPassword) => {
+            const createdImage = new Image({
+                image: url + '/public/' + req.file.filename
+            });
             const user = new User({
                 username, email, password: hashPassword,
-                profileImg: url + '/public/' + req.file.filename
+                profileImg: createdImage._id
             });
+            await createdImage.save();
             await user.save();
             res.status(200).json({ success: true, data: user });
         })

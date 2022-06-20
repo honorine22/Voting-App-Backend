@@ -1,8 +1,5 @@
-import mongoose from 'mongoose';
-import { placeSchema } from '../models/place.model.js';
-import { UserSchema } from '../models/user.model.js';
-const Place = mongoose.model('Place', placeSchema);
-const User = mongoose.model('User', UserSchema);
+import { Place } from '../models/place.model.js';
+import { User } from '../models/user.model.js';
 import { v4 as uuid4 } from 'uuid';
 import HttpError from '../models/http-error.js';
 

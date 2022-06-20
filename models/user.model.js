@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-export const UserSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
     username: {
         type: String,
         required: [true, 'Username is required']
@@ -20,8 +20,9 @@ export const UserSchema = new mongoose.Schema({
         required: true
     },
     profileImg: {
-        type: String,
-        required: [true, 'Profile image is required.']
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Image'
+        // required: [true, 'Profile image is required.']
     },
     // user can register as a candidate in different organisations (one or more)
     organs: [{
@@ -29,3 +30,5 @@ export const UserSchema = new mongoose.Schema({
         ref: 'Organ'
     }]
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }, collection: 'users' });
+
+export const User = mongoose.model('User', UserSchema);
