@@ -8,8 +8,9 @@ export const getAllOrgans = async (req, res, next) => {
     try {
         const organs = await Organ.find()
             .populate('user', ['email', '_id'])
-        const arrayOrgans = organs.map(({ orgname }) => ({
-            orgname
+        const arrayOrgans = organs.map(({ orgname, organImg }) => ({
+            orgname,
+            organImg
         }))
         console.log("array organs" + arrayOrgans);
         const uniqueNames = [];
@@ -41,14 +42,18 @@ export const getAllOrgans = async (req, res, next) => {
 }
 
 export const newOrgan = async (req, res, next) => {
+    const url = req.protocol + '://' + req.get('host');
     try {
         const userId = req.user._id;
         console.log("Checking Auth..." + userId);
         const user = await User.findById(userId)
-        const { orgname, candidates } = req.body
+        const { orgname, candidates } = req.body;
+
+        const organImg = url + '/public/' + req.file.filename;
         const organ = await Organ.create({
             user,
             orgname,
+            organImg,
             candidates: candidates.map(({ fullname, description }) => ({
                 fullname,
                 description,
@@ -63,6 +68,35 @@ export const newOrgan = async (req, res, next) => {
         next(error)
     }
 }
+
+// export const updateUser = (req, res) => {
+//     const url = req.protocol + '://' + req.get('host');
+//     User.findByIdAndUpdate(req.params.uid, {
+//         username: req.body.username,
+//         email: req.body.email,
+//         // name: req.body.name,
+//         password: req.body.password,
+//         profileImg: url + '/public/' + req.file.filename
+
+//     }, { new: true })
+//         .then(user => {
+//             if (!user) {
+//                 return res.status(404).send({
+//                     message: "User not found with id " + req.params.uid
+//                 });
+//             }
+//             res.send(user);
+//         }).catch(err => {
+//             if (err.kind === 'ObjectId') {
+//                 return res.status(404).send({
+//                     message: "User not found with id " + req.params.uid
+//                 });
+//             }
+//             return res.status(500).send({
+//                 message: "Error updating user with id " + req.params.uid
+//             });
+//         });
+// };
 
 export const getOrgansByUser = async (req, res, next) => {
     const userId = req.user._id;

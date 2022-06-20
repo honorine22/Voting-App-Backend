@@ -1,9 +1,10 @@
 import { getAllOrgans, getOrgansByUser, newOrgan, deleteOrgan, checkVoteNum } from '../controllers/organ.controller.js';
+import upload from '../middlewares/uploadImage.js';
 import auth from '../middlewares/auth.middleware.js';
 const organRoutes = (app) => {
     app.route('/organs')
         .get(getAllOrgans)
-        .post(auth, newOrgan)
+        .post(auth, upload.single('organImg'), newOrgan)
     app.route('/vote/:_id')
         .post(auth, checkVoteNum)
     // user || user organ:_id

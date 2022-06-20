@@ -29,13 +29,13 @@ export const OrganSchema = new mongoose.Schema({
         required: true,
         type: String
     },
-    // orgImg: {
-    //     type: String,
-    //     required: [true, 'Organisation Image is required']
-    // },
+    organImg: {
+        type: String,
+        required: [true, 'Organisation Image is required']
+    },
     candidates: [candidateSchema],
     voted: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }]
-}, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } })
+}, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }, collection: 'organs' })

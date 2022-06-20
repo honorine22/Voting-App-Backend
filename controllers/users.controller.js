@@ -47,6 +47,7 @@ export const updateUser = (req, res) => {
     User.findByIdAndUpdate(req.params.uid, {
         username: req.body.username,
         email: req.body.email,
+        // name: req.body.name,
         password: req.body.password,
         profileImg: url + '/public/' + req.file.filename
 
