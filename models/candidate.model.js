@@ -10,7 +10,7 @@ const candidateSchema = new mongoose.Schema({
     },
     canImg: {
         type: mongoose.Schema.Types.ObjectId,
-        required: [true, 'Candidate Image is required']
+        ref: 'Image'
     },
     votes: {
         type: Number,

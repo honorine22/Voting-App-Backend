@@ -11,6 +11,8 @@ import placeRoutes from "./routes/place.route.js";
 import usersRoutes from "./routes/user.route.js";
 import jsonwebtoken from "jsonwebtoken";
 import organRoutes from "./routes/organ.route.js";
+import candidateRoutes from "./routes/candidate.route.js";
+import imageRoutes from "./routes/images.route.js";
 const port = process.env.port || 5000;
 const url = process.env.url;
 const app = express();
@@ -46,7 +48,9 @@ app.get('/', (req, res) => {
 
 placeRoutes(app);
 usersRoutes(app);
-organRoutes(app)
+organRoutes(app);
+candidateRoutes(app);
+imageRoutes(app);
 
 app.listen(port, () => {
     console.log(`App running on port ${port}`);

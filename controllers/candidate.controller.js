@@ -1,5 +1,6 @@
-import { Candidate } from "../models/candidate.model";
-import { Organ } from "../models/organ.model";
+import { Candidate } from "../models/candidate.model.js";
+import { Image } from "../models/Image.model.js";
+import { Organ } from "../models/organ.model.js";
 
 export const newCandidate = async (req, res, next) => {
     const url = req.protocol + '://' + req.get('host');
@@ -7,16 +8,29 @@ export const newCandidate = async (req, res, next) => {
         const organId = req.params.oid;
         console.log("Checking Auth..." + organId);
         const organ = await Organ.findById(organId)
+        const createdImage = new Image({
+            image: url + '/public/' + req.file.filename
+        });
 
+        if (organ)
+            console.log("Id found....");
         const { fullname, description } = req.body;
-        const createdOrgan = await Candidate.create({
-            description,
+
+
+        const createdCandidate = await Candidate.create({
+            organ,
             fullname,
-            canImg: url + '/public/' + req.file.filename
+            description,
+            canImg: createdImage._id
         })
-        organ.candidates.push(createdOrgan._id);
-        await user.save();
-        res.status(201).send({ ...createdOrgan._doc, organ: organ._id })
+
+        await createdImage.save();
+        await createdCandidate.save().then(can => {
+            Organ.findOneAndUpdate({ _id: organId }, { $push: { candidates: can._id } })
+                .then(() => {
+                    res.status(201).send({ created: true, organId: organId, candidateId: createdCandidate._id });
+                })
+        })
     } catch (error) {
         error.status = 400
         next(error)

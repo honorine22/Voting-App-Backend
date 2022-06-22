@@ -1,4 +1,3 @@
-
 import multer from 'multer';
 const DIR = './public/';
 

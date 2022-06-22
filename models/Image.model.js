@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 export const ImageSchema = new mongoose.Schema({
     image: {
         type: String,
-        required: [true, 'Organisation Image is required']
+        required: true
     }
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }, collection: 'images' })
 

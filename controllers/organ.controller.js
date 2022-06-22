@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { Image } from '../models/Image.model.js';
 import { Organ } from '../models/organ.model.js';
 import { User } from '../models/user.model.js';
 
@@ -46,21 +47,30 @@ export const newOrgan = async (req, res, next) => {
         const userId = req.user._id;
         console.log("Checking Auth..." + userId);
         const user = await User.findById(userId)
-        const { orgname, candidates } = req.body;
+        const { orgname } = req.body;
+        const createdImage = new Image({
+            image: url + '/public/' + req.file.filename
+        });
         const organ = await Organ.create({
             user,
             orgname,
-            organImg: url + '/public/' + req.file.filename,
-            candidates: candidates.map(({ fullname, description }) => ({
-                fullname,
-                description,
-                canImg: url + '/public/' + req.file.filename,
-                votes: 0
-            }))
+            organImg: createdImage._id
         })
-        user.organs.push(organ._id);
-        await user.save();
-        res.status(201).send({ ...organ._doc, user: user._id })
+        // candidates: candidates.map(({ fullname, description }) => ({
+        //     fullname,
+        //     description,
+        //     canImg: url + '/public/' + req.file.filename,
+        //     votes: 0
+        // }))
+        await createdImage.save();
+        await organ.save().then(organ => {
+
+            User.findOneAndUpdate({ _id: userId }, { $push: { organs: organ._id } }).then(() => {
+                res.status(201).send({ created: true, userId: user._id, organId: organ._id });
+            });
+
+        });
+        // res.status(201).send({ ...organ._doc, user: user._id })
     } catch (error) {
         error.status = 400
         next(error)
@@ -137,7 +147,7 @@ export const deleteOrgan = async (req, res, next) => {
             throw new Error('Unauthorized access.')
         }
         await organ.remove()
-        res.status(202).json(organ)
+        res.status(202).send({ message: "Organ Deleted." })
         console.log("organ deleted.")
 
     } catch (error) {

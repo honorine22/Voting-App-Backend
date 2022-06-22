@@ -1,8 +1,12 @@
 import upload from '../middlewares/image.middleware.js';
 import auth from '../middlewares/auth.middleware.js';
-import { newCandidate } from '../controllers/candidate.controller.js';
-const organRoutes = (app) => {
+import { AllCandidates, newCandidate, vote } from '../controllers/candidate.controller.js';
+const candidateRoutes = (app) => {
+    app.route('/candidates')
+        .get(AllCandidates)
+    app.route(auth, '/vote')
+        .post(vote)
     app.route('/candidate/:oid')
         .post(auth, upload.single('canImg'), newCandidate)
 }
-export default organRoutes;
+export default candidateRoutes;
