@@ -4,8 +4,8 @@ import { AllCandidates, newCandidate, vote } from '../controllers/candidate.cont
 const candidateRoutes = (app) => {
     app.route('/candidates')
         .get(AllCandidates)
-    app.route(auth, '/vote')
-        .post(vote)
+    app.route('/vote/:oid/:cid')
+        .post(auth, vote)
     app.route('/candidate/:oid')
         .post(auth, upload.single('canImg'), newCandidate)
 }

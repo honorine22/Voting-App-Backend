@@ -1,16 +1,12 @@
-import { newOrgan, deleteOrgan, checkVoteNum, updateOrgan, myPolls, getAllOrganNames } from '../controllers/organ.controller.js';
+import { newOrgan, deleteOrgan, updateOrgan, getAllOrganNames, allOrgans } from '../controllers/organ.controller.js';
 import upload from '../middlewares/image.middleware.js';
 import auth from '../middlewares/auth.middleware.js';
 const organRoutes = (app) => {
     app.route('/organs')
         .post(auth, upload.single('organImg'), newOrgan)
+        .get(allOrgans)
     app.route('/organnames')
         .get(getAllOrganNames)
-    app.route('/vote/:_id')
-        .post(auth, checkVoteNum)
-    // user || user organ:_id
-    app.route('/organs/authuser')
-        .get(auth, myPolls)
     app.route('/organs/:_id')
         .delete(auth, deleteOrgan)
         .put(auth, upload.single('organImg'), updateOrgan)

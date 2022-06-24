@@ -22,9 +22,7 @@ const UserSchema = new mongoose.Schema({
     profileImg: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Image'
-        // required: [true, 'Profile image is required.']
     },
-    // user can register as a candidate in different organisations (one or more)
     organs: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Organ'

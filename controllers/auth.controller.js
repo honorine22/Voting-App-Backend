@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
 import { Image } from "../models/Image.model.js";
@@ -13,6 +12,8 @@ export const signup = async (req, res) => {
     else {
         const { username, email, password } = req.body;
         bcrypt.hash(password, 10, async (err, hashPassword) => {
+            console.log(req.file);
+            console.log("File: " + req.file);
             const createdImage = new Image({
                 image: url + '/public/' + req.file.filename
             });
@@ -20,7 +21,6 @@ export const signup = async (req, res) => {
                 username, email, password: hashPassword,
                 profileImg: createdImage._id
             });
-            await createdImage.save();
             await user.save();
             res.status(200).json({ success: true, data: user });
         })
@@ -34,12 +34,12 @@ export const signin = async (req, res) => {
             if (passwordIsValid) {
                 let token = jwt.sign({ _id: user._id, username: user.username, email: user.email },
                     process.env.API_SECRET, { expiresIn: '1h' });
-                res.status(200).send({ success: true, message: 'Bearer ' + token });
+                res.status(200).send({ success: true, message: token });
             } else {
-                res.status(401).send({ success: false, message: "invalid credentials" });
+                res.status(401).send({ success: false, message: "Invalid credentials" });
             }
         })
     } else {
-        res.status(401).send({ success: false, message: "invalid credentials" });
+        res.status(401).send({ success: false, message: "Invalid credentials" });
     }
 }

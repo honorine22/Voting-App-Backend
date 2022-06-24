@@ -4,6 +4,12 @@ import { Organ } from '../models/organ.model.js';
 import { User } from '../models/user.model.js';
 
 
+export const allOrgans = async (req, res) => {
+    Organ.find().then((organs) => {
+        res.status(200).send({ organs: "Organs available", organs })
+    });
+}
+
 export const getAllOrganNames = async (req, res, next) => {
     try {
         const organs = await Organ.find()
@@ -11,7 +17,8 @@ export const getAllOrganNames = async (req, res, next) => {
         const arrayOrgans = organs.map(({ _id, orgname, organImg }) => ({
             _id,
             orgname,
-            organImg
+            organImg,
+            orgImage: Image.findById(organImg).then(img => img.image)
         }))
         const uniqueNames = [];
 
@@ -30,9 +37,10 @@ export const getAllOrganNames = async (req, res, next) => {
             return false;
         })
         // Returned only organisation names
-        res.status(201).send(
-            uniqueOrgans
-        )
+        res.status(201).send({
+            orgsData: uniqueOrgans
+            // orgImage: 
+        })
     } catch (error) {
         if (error.code === 11000) {
             error.message = 'Sorry, that email is already taken.'
@@ -56,21 +64,13 @@ export const newOrgan = async (req, res, next) => {
             orgname,
             organImg: createdImage._id
         })
-        // candidates: candidates.map(({ fullname, description }) => ({
-        //     fullname,
-        //     description,
-        //     canImg: url + '/public/' + req.file.filename,
-        //     votes: 0
-        // }))
         await createdImage.save();
         await organ.save().then(organ => {
-
             User.findOneAndUpdate({ _id: userId }, { $push: { organs: organ._id } }).then(() => {
                 res.status(201).send({ created: true, userId: user._id, organId: organ._id });
             });
 
         });
-        // res.status(201).send({ ...organ._doc, user: user._id })
     } catch (error) {
         error.status = 400
         next(error)
@@ -154,59 +154,4 @@ export const deleteOrgan = async (req, res, next) => {
         error.status = 400
         next(error)
     }
-}
-
-export const checkVoteNum = async (req, res, next) => {
-    const userId = req.user._id;
-    try {
-        const { _id: organID } = req.params
-        const { answer } = req.body
-
-        if (answer) {
-            const organ = await Organ.findById(organID)
-            if (!organ) throw new Error("No answer given.")
-
-            const vote = organ.candidates.map(can => {
-                if (can.fullname === answer) {
-                    return {
-                        fullname: can.fullname,
-                        description: can.description,
-                        _id: can._id,
-                        votes: can.votes + 1
-                    }
-                } else {
-                    return can
-                }
-            })
-
-            if (organ.voted.filter(user =>
-                user.toString() === userId).length <= 0) {
-                organ.voted.pushed(userId)
-                console.log(`Voted by userID ${userId}.`);
-                organ.candidates = vote;
-                await organ.save()
-                res.status(201).send(organ)
-            }
-            else throw new Error('Already voted.')
-        } else {
-            throw new Error('No vote provided.')
-        }
-    } catch (error) {
-        error.status = 400
-        next(error)
-    }
-}
-
-
-
-export const allOrgans = (req, res) => {
-    Organ.find()
-        .then(organs => {
-            return res.status(200).send(organs);
-        })
-        .catch(err => {
-            return res.status(500).send({
-                message: "Could n't retrieve places" + err.message
-            })
-        })
 }
