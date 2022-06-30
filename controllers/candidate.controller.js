@@ -1,6 +1,7 @@
 import { Candidate } from "../models/candidate.model.js";
 import { Image } from "../models/Image.model.js";
 import { Organ } from "../models/organ.model.js";
+import mongoose from "mongoose";
 
 export const newCandidate = async (req, res, next) => {
     const url = req.protocol + '://' + req.get('host');
@@ -49,41 +50,33 @@ export const AllCandidates = async (req, res) => {
         });
 };
 
-export const viewCanImg = async (req, res, _id) => {
-    await Candidate.findById({ _id }).populate({ path: 'canImg', select: { image: 1, _id: 0 } })
-        .then(candidates => {
-            res.send(candidates);
-        }).catch(err => {
-            res.status(500).send({
-                message: err.message || "Some error occurred while retrieving candidates."
-            });
-        });
-}
-
 export const getCandidatesByOrgan = async (req, res) => {
-
-    const orgCans = await Organ.find({ _id: req.params.oid })
-        .populate({ path: 'candidates' });
-
-    orgCans.map(({ candidates }) => {
-        let cands;
-        candidates.map((can) => {
-            let id = can._id;
-            console.log("_ID: " + can._id);
-            viewCanImg(req, res, id);
-            // Candidate.find()
-            //     .populate({ path: 'canImg', select: { image: 1 } })
-            //     .then(cands => {
-            //         res.status(200).send({ cands });
-            //     })
-            //     .catch(err => {
-            //         res.status(404).send({ error: err, message: "No candidates on this organisation." });
-            //     })
+    await Organ.find({ _id: req.params.oid })
+        .populate({
+            path: 'candidates',
+            populate: { path: "canImg", select: { image: 1, _id: 0 } }
         })
-
-    })
+        .then((data) => {
+            res.send({ data: data });
+        })
 }
 
+// export const getCandidatesByOrgan = async (req, res) => {
+//     return await Organ.aggregate([
+//         {$match: { _id: mongoose.Types.ObjectId(req.params.oid) }},
+//         {$limit: 1},
+//         { $lookup: {
+//             from: "images",
+//             let: { "candidates": "$candidates" },
+//             pipeline: [
+//                 { $match: { "_id": { "$in": "$candidates"} } }
+//             ],
+//             as: "output"
+//         }}
+//     ]).then(result=> {
+//         return res.send({ data: result });
+//     });
+// }
 
 export const vote = async (req, res) => {
     const loggedInUser = req.user._id;

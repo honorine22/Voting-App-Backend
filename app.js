@@ -26,7 +26,7 @@ app.use((req, res, next) => {
     next()
 })
 
-mongoose.Promise = global.Promise;
+// mongoose.Promise = global.Promise;
 mongoose.connect(url, { useUnifiedTopology: true, useNewUrlParser: true })
     .then(() => {
         console.log("Database running");
