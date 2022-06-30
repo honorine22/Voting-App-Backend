@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import { Image } from '../models/Image.model.js';
 import { Organ } from '../models/organ.model.js';
 import { User } from '../models/user.model.js';
@@ -10,15 +9,19 @@ export const allOrgans = async (req, res) => {
     });
 }
 
+export const getOrganById = async (req, res) => {
+    await Organ.findById({ _id: req.params.oid }).then(({ orgname }) => {
+        res.send({ organ_name: orgname })
+    })
+}
+
 export const getAllOrganNames = async (req, res, next) => {
     try {
-        const organs = await Organ.find()
-            .populate('user', ['email', '_id'])
+        const organs = await Organ.find().populate({ path: 'organImg', select: { image: 1, _id: 0 } });
         const arrayOrgans = organs.map(({ _id, orgname, organImg }) => ({
             _id,
             orgname,
-            organImg,
-            orgImage: Image.findById(organImg).then(img => img.image)
+            organImg
         }))
         const uniqueNames = [];
 
@@ -29,7 +32,6 @@ export const getAllOrganNames = async (req, res, next) => {
             // have empty array which doesn't contain the same name. when another
             // orgname of the second item comes, it check if names are equal or not
             // and insert the item if it is different
-
             if (!isDuplicate) {
                 uniqueNames.push(element.orgname, element.organImg);
                 return true;
@@ -39,7 +41,6 @@ export const getAllOrganNames = async (req, res, next) => {
         // Returned only organisation names
         res.status(201).send({
             orgsData: uniqueOrgans
-            // orgImage: 
         })
     } catch (error) {
         if (error.code === 11000) {
@@ -102,23 +103,6 @@ export const updateOrgan = (req, res) => {
             });
         });
 };
-
-export const myPolls = async (req, res, next) => {
-    try {
-        const userId = req.user._id;
-        const user = await User.findById(userId)
-            .populate('organs');
-        res.status(200).json(user.organs)
-
-    } catch (err) {
-        return next({
-            status: 400,
-            message: err.message,
-        });
-    }
-}
-
-
 
 export const getOrganByUser = async (req, res, next) => {
     try {

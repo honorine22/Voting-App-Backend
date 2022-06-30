@@ -1,6 +1,6 @@
 import { User } from "../models/user.model.js";
 import { Image } from '../models/Image.model.js';
-
+import { Organ } from '../models/organ.model.js';
 export const uploadImage = async (req, res) => {
     try {
         const userId = req.user._id;
@@ -64,4 +64,32 @@ export const getImages = async (req, res) => {
     Image.find().then((images) => {
         res.status(200).send({ message: "Images available", images })
     });
+}
+
+export const getOrganImages = async (req, res) => {
+    let dbImages = [];
+    let organImages = [];
+    Image.find().then((images) => {
+        images.map(image => {
+            dbImages.push(image._id);
+        })
+    })
+
+    // console.log("DB IMAGES: " + dbImages);
+    // console.log("ORGAN IMAGES: " + organImages);
+
+    // const arrayOrgans = dbImages.map(({ _id, orgname, organImg }) => ({
+    //     _id,
+    //     orgname,
+    //     organImg
+    // }))
+
+    Organ.find({ "organImg": { $in: dbImages } })
+        .then(orgData => {
+            res.send({ orgImg: orgData.organImg })
+        })
+        .catch(error => {
+            res.send(error)
+        })
+
 }
