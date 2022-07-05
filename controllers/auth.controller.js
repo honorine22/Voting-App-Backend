@@ -22,7 +22,7 @@ export const signup = async (req, res) => {
                 profileImg: createdImage._id
             });
             await user.save();
-            res.status(200).json({ success: true, data: user });
+            res.status(200).send({ success: true, data: user });
         })
     }
 };
@@ -33,13 +33,25 @@ export const signin = async (req, res) => {
         bcrypt.compare(req.body.password, user.password, (err, passwordIsValid) => {
             if (passwordIsValid) {
                 let token = jwt.sign({ _id: user._id, username: user.username, email: user.email },
-                    process.env.API_SECRET, { expiresIn: '1h' });
-                res.status(200).send({ success: true, message: token });
+                    process.env.API_SECRET, { expiresIn: '30min' });
+                res.status(200).send({
+                    success: true, message: 'Logged in Successfully', id: user._id,
+                    username: user.username, email: user.email, token: token
+                });
             } else {
-                res.status(401).send({ success: false, message: "Invalid credentials" });
+                res.status(401).send({
+                    success: false,
+                    message: "Invalid credentials"
+                });
             }
         })
     } else {
         res.status(401).send({ success: false, message: "Invalid credentials" });
     }
+}
+
+export const logout = async (req, res) => {
+    res.cookie('token', 'none', {
+        httpOnly: true,
+    })
 }

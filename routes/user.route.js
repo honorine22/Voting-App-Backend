@@ -8,15 +8,14 @@ const usersRoutes = (app) => {
         .get(getUsers);
     app.route('/users/:uid')
         .put(upload.single('profileImg'), updateUser)
-        .delete(auth, deleteUser);
+        .delete(auth, deleteUser)
+        .get(getUser);
     app.route('/users/email/:email')
         .get(findByEmail)
     app.route('/login')
         .post(signin);
     app.route('/register')
         .post(upload.single('profileImg'), signup);
-    app.route('users')
-        .get(getUser)
 
 }
 export default usersRoutes;

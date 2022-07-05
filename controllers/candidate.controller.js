@@ -37,6 +37,42 @@ export const newCandidate = async (req, res, next) => {
     }
 }
 
+export const updateCandidate = (req, res) => {
+    const url = req.protocol + '://' + req.get('host');
+    Candidate.findByIdAndUpdate(req.params.cid, {
+        fullname: req.body.fullname,
+        description: req.body.description,
+        canImg: url + '/public/' + req.file.filename
+    }, { new: true })
+        .then(can => {
+            if (!can) {
+                return res.status(404).send({
+                    message: "Candidate not found with id " + req.params.cid
+                });
+            }
+            res.send(can);
+        }).catch(err => {
+            if (err.kind === 'ObjectId') {
+                return res.status(404).send({
+                    message: "Candidate not found with id " + req.params.cid
+                });
+            }
+            return res.status(500).send({
+                message: "Error updating candidate with id " + req.params.cid
+            });
+        });
+};
+
+export const getCandidate = async (req, res) => {
+    const canId = req.params.cid;
+    try {
+        const can = await Candidate.findById(canId);
+        res.status(200).send(can);
+    } catch (error) {
+        res.status(404).send({ message: 'Candidate Not Found' })
+    }
+};
+
 export const AllCandidates = async (req, res) => {
     // const candidates = await Candidate.find().populate('canImg').select({ image: 1, _id: 0 });
 
@@ -57,7 +93,7 @@ export const getCandidatesByOrgan = async (req, res) => {
             populate: { path: "canImg", select: { image: 1, _id: 0 } }
         })
         .then((data) => {
-            res.send({ data: data });
+            res.send(data);
         })
 }
 
@@ -113,3 +149,24 @@ export const vote = async (req, res) => {
         });
 }
 
+export const deleteCandidate = (req, res) => {
+    const userId = req.user._id;
+    Candidate.findByIdAndRemove(req.params.cid)
+        .then(can => {
+            if (!can) {
+                return res.status(404).send({
+                    message: "Candidate not found with id " + req.params.cid
+                });
+            }
+            res.send({ message: "Candidate deleted successfully!" });
+        }).catch(err => {
+            if (err.kind === 'ObjectId' || err.name === 'NotFound') {
+                return res.status(404).send({
+                    message: "Candidate not found with id " + req.params.cid
+                });
+            }
+            return res.status(500).send({
+                message: "Could not delete candidate with id " + req.params.cid
+            });
+        });
+};

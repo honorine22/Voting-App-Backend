@@ -1,0 +1,492 @@
+openapi: "3.0.0"
+info:
+  title: Voting System
+  description: Voting System, to allow users vote and help in registering candidates
+  version: 1.0
+  contact:
+    name: Honorine Igiraneza
+    email: higiranez@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+  servers:
+    - url: http://localhost:3800
+      description: This is the local server
+tags:
+  - name: organs
+    description: All organs in our application
+  - name: candidates
+    description: All candidates in our application
+  - name: users
+    description: All users in our application
+  - name: images
+    description: All images in our application
+schemes: [http, https]
+
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    Basic:
+      type: http
+      scheme: basic
+  schemas:
+    Image:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Unique identifier for Image
+        image:
+          type: string
+          description: image
+        created_at:
+          type: string
+          format: date-time
+          description: User creation datetime of an image
+        updated_at:
+          type: string
+          format: date-time
+          description: User updated datetime of  an image
+
+    Candidate:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Unique identifier for candidate
+        fullname:
+          type: string
+          description: Full names of candidate
+        description:
+          type: string
+          description: candidate's description
+        canImg:
+          $ref: "#/components/schemas/Image"
+          description: Candidate Image
+        votes:
+          type: integer
+          description: Number of votes on this candidate
+        organ:
+          $ref: "#/components/schemas/Organ"
+          description: Organ of this candidate
+
+    Organ:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Unique identifier for organ
+        user:
+          $ref: "#/components/schemas/User"
+          description: User voted in this organ
+        orgname:
+          type: string
+          description: Organ name
+        organImg:
+          $ref: "#/components/schemas/Image"
+          description: Organ Image
+        candidates:
+          type: array
+          items:
+            $ref: "#/components/schemas/Candidate"
+            description: candidate registered in this organ
+        voted:
+          type: array
+          $ref: "#/components/schemas/User"
+
+        created_at:
+          type: string
+          format: date-time
+          description: User creation datetime of organ
+        updated_at:
+          type: string
+          format: date-time
+          description: User update datetime of organ
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Unique identifier for user
+        username:
+          type: string
+          description: The username of the user
+        email:
+          type: string
+          description: The email of the user
+        password:
+          type: string
+          description: The password of the user
+        profileImg:
+          $ref: "#/components/schemas/Image"
+          description: The profile image of the user
+        organs:
+          type: array
+          items:
+            $ref: "#/components/schemas/Organ"
+            description: Organs this user has voted into
+        created_at:
+          type: string
+          format: date-time
+          description: User creation datetime
+        updated_at:
+          type: string
+          format: date-time
+          description: User update datetime
+
+    ArrayUsers:
+      type: object
+      properties:
+        users:
+          type: array
+          description: All users in our application
+          items:
+            $ref: "#/components/schemas/User"
+
+    ArrayOrgans:
+      type: object
+      properties:
+        organs:
+          type: array
+          description: All organs in our application
+          items:
+            $ref: "#/components/schemas/Organ"
+
+    ArrayCandidates:
+      type: array
+      description: All candidates in our application
+      items:
+        $ref: "#/components/schemas/Candidate"
+
+    ArrayImages:
+      type: object
+      properties:
+        message:
+          type: string
+        images:
+          type: array
+          description: All images in our application
+          items:
+            $ref: "#/components/schemas/Image"
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
+  responses:
+    Unauthorized:
+      description: Not Authorized
+      schema:
+        $ref: "#/components/schemas/Error"
+    ok:
+      description: SUccess
+      schema:
+        $ref: "#/components/schemas/Error"
+    NotFound:
+      description: The specified resource was not found
+      schema:
+        $ref: "#/components/schemas/Error"
+    BadRequest:
+      description: The fields types are not correct
+      schema:
+        $ref: "#/components/schemas/Error"
+
+security:
+  # - Bearer: []
+
+paths:
+  /users:
+    get:
+      tags:
+        - users
+      summary: All users in our application
+      description: Returns users
+      produces:
+        - application/json
+      responses:
+        200:
+          description: An array of Users
+          schema:
+            $ref: "#/components/schemas/Users"
+  /organs:
+    get:
+      tags:
+        - organs
+      summary: All organs in our application
+      description: Returns users
+      produces:
+        - application/json
+      responses:
+        200:
+          content:
+            application/json:
+              description: An array of Organs
+              schema:
+                $ref: "#/components/schemas/ArrayOrgans"
+  /candidates/{oid}:
+    get:
+      tags:
+        - candidates
+      summary: All candidates in our application
+      description: Returns candidates
+      produces:
+        - application/json
+      parameters:
+        - name: oid
+          in: path
+          type: string
+          required: true
+      responses:
+        200:
+          content:
+            application/json:
+              description: An array of Candidates
+              schema:
+                $ref: "#/components/schemas/ArrayCandidates"
+    post:
+      tags:
+        - candidates
+      summary: Create new candidate
+      description: return new created candidate
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - name: oid
+          in: path
+          type: string
+          required: true
+        - in: formData
+          name: fullname
+          type: string
+          description: Full names of a candidate
+        - in: formData
+          name: description
+          type: string
+          description: description of a candidate
+        - in: formData
+          name: canImg
+          type: file
+          description: candidate image
+      responses:
+        201:
+          description: Candidate created
+          schema:
+            $ref: "#/components/schemas/Candidate"
+        400:
+          schema:
+            $ref: "#/components/responses/BadRequest"
+        401:
+          schema:
+            $ref: "#/components/responses/Unauthorized"
+      security:
+        - Bearer: []
+  /candidates/{oid}/{cid}:
+    get:
+      tags:
+        - candidates
+      summary: Get a candidate by ID.
+      produces:
+        - application/json
+      parameters:
+        - name: oid
+          in: path
+          type: string
+          required: true
+        - name: cid
+          in: path
+          type: string
+          required: true
+      responses:
+        200:
+          description: Got A candidate successfully
+          schema:
+            $ref: "#/components/schemas/Candidate"
+        404:
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags:
+        - candidates
+      produces:
+        - application/json
+      parameters:
+        - name: cid
+          in: path
+          type: string
+          required: true
+        - name: oid
+          in: path
+          type: string
+          required: true
+      responses:
+        200:
+          description: "candidate deleted successfully"
+        404:
+          schema:
+            $ref: "#/components/responses/NotFound"
+        401:
+          schema:
+            $ref: "#/components/responses/Unauthorized"
+
+    put:
+      tags:
+        - candidates
+      summary: Edit candidate details
+      description: return existing Edited candidate
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - name: oid
+          in: path
+          type: string
+          required: true
+        - in: path
+          name: cid
+          required: true
+          type: string
+        - in: formData
+          name: fullname
+          type: string
+          description: Full names of a candidate
+        - in: formData
+          name: description
+          type: string
+          description: description of a candidate
+        - in: formData
+          name: canImg
+          type: file
+          description: candidate image
+      responses:
+        201:
+          schema:
+            $ref: "#/components/schemas/Candidate"
+        404:
+          schema:
+            $ref: "#/components/responses/NotFound"
+        400:
+          schema:
+            $ref: "#/responses/BadRequest"
+
+  /images:
+    get:
+      tags:
+        - images
+      summary: All images in our application
+      description: Returns images
+      produces:
+        - application/json
+      responses:
+        200:
+          description: An array of Images
+          schema:
+            $ref: "#/components/schemas/Images"
+
+  /users/{uid}:
+    get:
+      tags:
+        - users
+      summary: Gets a user by ID.
+      produces:
+        - application/json
+      parameters:
+        - name: uid
+          in: path
+          type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/components/schemas/User"
+        404:
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags:
+        - users
+      summary: Edit user details
+      description: return existing Edited user
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+        - in: formData
+          name: profileImg
+          type: file
+          description: The profile image of the user
+        - in: formData
+          name: username
+          type: string
+          description: The username of the user
+        - in: formData
+          name: email
+          type: string
+          description: The email of the user
+        - in: formData
+          name: password
+          type: string
+          description: The password of the user
+      responses:
+        201:
+          schema:
+            $ref: "#/components/schemas/User"
+        404:
+          schema:
+            $ref: "#/components/responses/NotFound"
+        400:
+          schema:
+            $ref: "#/responses/BadRequest"
+
+  /register:
+    post:
+      tags:
+        - users
+      summary: Create new user
+      description: return new user
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: profileImg
+          type: file
+          description: The profile image of the user
+        - in: formData
+          name: username
+          type: string
+          description: The username of the user
+        - in: formData
+          name: email
+          type: string
+          description: The email of the user
+        - in: formData
+          name: password
+          type: string
+          description: The password of the user
+      responses:
+        201:
+          schema:
+            $ref: "#/components/schemas/User"
+        404:
+          schema:
+            $ref: "#/components/responses/NotFound"
+        400:
+          schema:
+            $ref: "#/responses/BadRequest"

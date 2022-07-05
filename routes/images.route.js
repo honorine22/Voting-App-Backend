@@ -4,7 +4,7 @@ const imageRoutes = (app) => {
     app.route('/images')
         .get(getImages)
 
-    app.route('/organImages')
+    app.route('/images/organImages')
         .get(getOrganImages)
 }
 export default imageRoutes;

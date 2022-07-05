@@ -19,7 +19,7 @@ export const findByEmail = (req, res) => {
 export const getUsers = (req, res) => {
     User.find()
         .then(users => {
-            res.send(users);
+            res.status(200).send({users: users});
         }).catch(err => {
             res.status(500).send({
                 message: err.message || "Some error occurred while retrieving users."
@@ -28,15 +28,13 @@ export const getUsers = (req, res) => {
 };
 
 export const getUser = async (req, res) => {
-    const userId = req.user._id;
+    const userId = req.params.uid;
     try {
-        const user = await User.findById(userId)
-            .populate('organs')
-        res.status(200).send(user.organs);
+        const user = await User.findById(userId);
+        res.status(200).send(user);
         console.log("Found the organisations");
     } catch (error) {
-        error.status = 400;
-        next(error)
+        res.status(404).send({message: 'User Not Found'})
     }
 };
 

@@ -5,13 +5,18 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
 import placeRoutes from "./routes/place.route.js";
+import swaggerUI from "swagger-ui-express";
 import usersRoutes from "./routes/user.route.js";
 import organRoutes from "./routes/organ.route.js";
 import candidateRoutes from "./routes/candidate.route.js";
 import imageRoutes from "./routes/images.route.js";
+import YAML from "yamljs";
 const port = process.env.port || 5000;
 const url = process.env.url;
 const app = express();
+
+const swaggerJSDocs = YAML.load('./swagger.yaml');
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerJSDocs));
 app.use(express.json({ limit: '5Mb' }));
 app.use(express.urlencoded({ extended: true, limit: '5Mb' }));
 app.use(morgan("dev"));
