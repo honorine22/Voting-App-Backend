@@ -2,6 +2,7 @@ import { getUser, getUsers, updateUser, deleteUser, findByEmail } from '../contr
 import { signin, signup } from '../controllers/auth.controller.js';
 import auth from '../middlewares/auth.middleware.js'
 import upload from '../middlewares/image.middleware.js';
+import { registerDefinition } from 'swaggiffy';
 
 const usersRoutes = (app) => {
     app.route('/users')
@@ -18,4 +19,6 @@ const usersRoutes = (app) => {
         .post(upload.single('profileImg'), signup);
 
 }
+
+registerDefinition(usersRoutes, { tags: 'Users', mappedSchema: 'User' })
 export default usersRoutes;
