@@ -43,11 +43,17 @@ app.get('/', (req, res) => {
     res.json({ message: 'Welcome to learning on board!' })
 })
 
-placeRoutes(app);
-usersRoutes(app);
-organRoutes(app);
-candidateRoutes(app);
-imageRoutes(app);
+app.use("/users", usersRoutes);
+app.use("/organs", organRoutes);
+app.use("/images", imageRoutes);
+app.use("/candidates", candidateRoutes);
+app.use("/places", placeRoutes);
+
+// placeRoutes(app);
+// usersRoutes(app);
+// organRoutes(app);
+// candidateRoutes(app);
+// imageRoutes(app);
 
 app.listen(port, () => {
     console.log(`App running on port ${port}`);

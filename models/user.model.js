@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { registerSchema } from "swaggiffy";
+// import { registerSchema } from "swaggiffy";
 const userSchema = {
     username: {
         type: String,
@@ -32,6 +32,6 @@ const userSchema = {
 const UserSchema = new mongoose.Schema(userSchema, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }, collection: 'users' });
 
 // registerSchema('User', userSchema, {orm: 'mongoose'});
-registerSchema('User', userSchema);
+// registerSchema('User', userSchema);
 
 export const User = mongoose.model('User', UserSchema);
