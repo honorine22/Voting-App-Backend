@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { registerSchema } from "swaggiffy";
 const candidateSchema = new mongoose.Schema({
     fullname: {
         required: true,
@@ -21,5 +22,7 @@ const candidateSchema = new mongoose.Schema({
         ref: 'Organ'
     }
 })
+
+registerSchema('Candidate', candidateSchema, { orm: 'mongoose' });
 
 export const Candidate = mongoose.model('Candidate', candidateSchema);

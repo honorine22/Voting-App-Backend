@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { registerSchema } from 'swaggiffy';
 
 const OrganSchema = new mongoose.Schema({
     user: {
@@ -23,5 +24,6 @@ const OrganSchema = new mongoose.Schema({
     }]
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }, collection: 'organs' })
 
+registerSchema('Organ', OrganSchema, { orm: 'mongoose' });
 
 export const Organ = mongoose.model('Organ', OrganSchema);

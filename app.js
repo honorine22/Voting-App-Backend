@@ -11,6 +11,8 @@ import organRoutes from "./routes/organ.route.js";
 import candidateRoutes from "./routes/candidate.route.js";
 import imageRoutes from "./routes/images.route.js";
 import YAML from "yamljs";
+import { Swaggiffy } from 'swaggiffy';
+
 const port = process.env.port || 5000;
 const url = process.env.url;
 const app = express();
@@ -49,12 +51,7 @@ app.use("/images", imageRoutes);
 app.use("/candidates", candidateRoutes);
 app.use("/places", placeRoutes);
 
-// placeRoutes(app);
-// usersRoutes(app);
-// organRoutes(app);
-// candidateRoutes(app);
-// imageRoutes(app);
-
 app.listen(port, () => {
     console.log(`App running on port ${port}`);
 })
+new Swaggiffy().setupExpress(app).swaggiffy();

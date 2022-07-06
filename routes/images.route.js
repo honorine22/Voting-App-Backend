@@ -1,10 +1,10 @@
+import express from 'express';
+import { registerDefinition } from 'swaggiffy';
 import { getImages, getOrganImages } from "../controllers/image.contoller.js";
-
-const imageRoutes = (app) => {
-    app.route('/images')
-        .get(getImages)
-
-    app.route('/images/organImages')
-        .get(getOrganImages)
-}
+const imageRoutes = express.Router({
+    mergeParams: true
+});
+imageRoutes.route("/").get(getImages);
+imageRoutes.route("/organImages").get(getOrganImages);
+registerDefinition(imageRoutes, { tags: 'Images', basePath: "/images", mappedSchema: 'Image' })
 export default imageRoutes;

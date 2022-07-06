@@ -3,7 +3,7 @@ import { getUser, getUsers, updateUser, deleteUser, findByEmail } from '../contr
 import { signin, signup } from '../controllers/auth.controller.js';
 import auth from '../middlewares/auth.middleware.js'
 import upload from '../middlewares/image.middleware.js';
-// import { registerDefinition } from 'swaggiffy';
+import { registerDefinition } from 'swaggiffy';
 
 const usersRoutes = express.Router({
     mergeParams: true
@@ -20,5 +20,5 @@ usersRoutes.route("/email/:email").get(findByEmail);
 usersRoutes.route("/login").post(signin);
 usersRoutes.route("/register").post(upload.single('profileImg'), signup);
 
-// registerDefinition(usersRoutes, { tags: 'Users', mappedSchema: 'User' })
+registerDefinition(usersRoutes, { tags: 'Users', basePath: "/users", mappedSchema: 'User' })
 export default usersRoutes;

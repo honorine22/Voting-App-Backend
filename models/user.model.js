@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-// import { registerSchema } from "swaggiffy";
-const userSchema = {
+import { registerSchema } from "swaggiffy";
+const UserSchema = new mongoose.Schema({
     username: {
         type: String,
         required: [true, 'Username is required']
@@ -28,10 +28,8 @@ const userSchema = {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Organ'
     }]
-}
-const UserSchema = new mongoose.Schema(userSchema, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }, collection: 'users' });
+}, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }, collection: 'users' });
 
-// registerSchema('User', userSchema, {orm: 'mongoose'});
-// registerSchema('User', userSchema);
+registerSchema('User', UserSchema, { orm: 'mongoose' });
 
 export const User = mongoose.model('User', UserSchema);

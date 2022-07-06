@@ -2,6 +2,7 @@ import express from 'express';
 import { newOrgan, deleteOrgan, updateOrgan, getAllOrganNames, allOrgans, getOrganById } from '../controllers/organ.controller.js';
 import upload from '../middlewares/image.middleware.js';
 import auth from '../middlewares/auth.middleware.js';
+import { registerDefinition } from 'swaggiffy';
 
 const organRoutes = express.Router({
     mergeParams: true
@@ -16,4 +17,5 @@ organRoutes.route("/:oid").get(getOrganById);
 organRoutes.route("/_id").delete(auth, deleteOrgan);
 organRoutes.route("/_id").put(auth, upload.single('organImg'), updateOrgan);
 
+registerDefinition(organRoutes, { tags: 'Organs', basePath: "/organs", mappedSchema: 'Organ' })
 export default organRoutes;
