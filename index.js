@@ -10,7 +10,7 @@ import usersRoutes from "./src/routes/user.route.js";
 import organRoutes from "./src/routes/organ.route.js";
 import candidateRoutes from "./src/routes/candidate.route.js";
 import imageRoutes from "./src/routes/images.route.js";
-import swaggerDoc from './swagger/swagger.json' assert {type: "json"};
+import swaggerDoc from './swaggiffy.json' assert {type: "json"};
 import { Swaggiffy } from 'swaggiffy';
 
 const port = process.env.port || 5000;
